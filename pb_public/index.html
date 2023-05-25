@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Your Dashboard</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  </head>
+  <body>
+    <section>
+        <div class="row vh-100">
+            <div class="col-3 p-5 d-flex " >
+                <div class="d-flex flex-column" style="position:fixed;">
+                <img style="width:50px;" class="mb-4" src="./img/mis-logo.svg">
+                <h6 class="mb-3">WELCOME TO YOUR PORTAL</h6>
+                <h1 class="mb-2" id="user"></h1>
+                <p>Keep track of all of your MIS orders right here.</p>
+                </div>
+            </div>
+            <div style="background-color: rgb(235, 239, 243);" class="col-9 d-flex p-5 flex-column">
+                <div class="d-flex flex-column mb-5">
+                   <h1 class="mb-3">Your Orders</h1>
+                   <h6>Click on an order to view more details.</h6> 
+                   <a id="email"><button class="email">Click here to reach your sales rep</button></a>
+                </div>
+                <div id="orders-container" style="background:white; border-radius:15px;" class="w-100 h-100 p-5 d-flex flex-column">
+                    <div class="row mb-4">
+                        <div class="col-3"><strong>Order #</strong></div>
+                        <div class="col-2"><strong>Order Date</strong></div>
+                        <div class="col-2"><strong>Promise Date</strong></div>
+                        <div class="col-2"><strong>Cost</strong></div>
+                        <div class="col-3"><strong>Status</strong></div>
+                    </div>
+                    
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+	<script src="./js/script.js"></script>
+    <script src="./dist/pocketbase.umd.js"></script>
+    <script type="text/javascript">
+        const pb = new PocketBase('http://127.0.0.1:8090');
+        $(document).ready(async function() { 
+            //const authData = await pb.collection('users').authWithPassword(localStorage.getItem(pocketbase_auth), 'password');
+                var getStored = localStorage.getItem('pocketbase_auth');
+                if(pb.authStore.isValid) {
+                    var id = JSON.parse(getStored);
+                    var companyId = `customer_id=` + id.model.username;
+                    $("#user").text(id.model.name);
+                    $("#email").attr('href', 'mailto:'+id.model.sales_rep);
+                    const records = await pb.collection('orders').getFullList({
+                        sort: '-created',
+                        filter: companyId
+                    });
+                    
+                    
+                    for( a=0; a<records.length; a++) {
+                        var string = `<div class="data-block" style="border-bottom: 1px solid rgb(235, 239, 243);">
+                                <a data-bs-toggle="collapse" href="#`+records[a]['id']+`">
+                                    <div class="row py-3">
+                                        <div class="col-3 top">`+records[a]['order_number']+`</div>
+                                        <div class="col-2 top">`+new Date(records[a]['created']).toISOString().split('T')[0]+`</div>
+                                        <div class="col-2 top">`+new Date(records[a]['promise_date']).toISOString().split('T')[0]+`</div>
+                                        <div class="col-2 top">`+records[a]['price']+`</div>
+                                        <div class="col-3 top"><span class="`+records[a]['status'].toLowerCase()+`">`+records[a]['status']+`</span></div>
+                                    </div>
+                                </a>
+
+                                <div id="`+records[a]['id']+`" class="collapse mb-3" style="color:rgb(189, 192, 196);border-radius:0px 0px 6px 6px;">
+                                    <div class="row py-3" >
+                                        <div class="col-3 d-flex flex-column">
+                                            <strong>Quote #:</strong>
+                                            <strong>OA #:</strong>
+                                        </div>
+
+                                        <div class="col-2 d-flex flex-column">
+                                            <p>`+records[a]['quote_number']+`</p>
+                                            <p>`+records[a]['oa_number']+`</p>
+                                        </div>
+
+                                        <div class="col-2">
+                                            <strong>Description:</strong>
+                                        </div>
+                                        <div class="col-5">
+                                            <p>`+records[a]['description']+`</p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12 d-flex flex-column">
+                                            <p>`+records[a]['notes']+`</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`;
+                        var container = document.getElementById("orders-container");
+                        container.insertAdjacentHTML('beforeend', string);
+                    }
+                } else {
+                    window.location.href = "http://127.0.0.1:8090/login.html";
+                }
+            });
+        
+    </script>
+  </body>
+</html>

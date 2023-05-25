@@ -1,0 +1,45 @@
+a {
+    text-decoration:none !important;
+    color:black !important;
+}
+.scheduled {
+    color: orange;
+    font-weight: bold;
+}
+.shipped {
+    color: rgb(40, 136, 11);
+    font-weight: bold;
+}
+p {
+    margin: 0 !important;
+}
+.in-progress {
+    color: rgb(180, 211, 122);
+    font-weight: bold;
+}
+.ordered {
+    color: rgb(179, 179, 179);
+    font-weight: bold; 
+}
+.passed-qc {
+    color: rgb(219, 124, 228);
+    font-weight: bold; 
+}
+.data-block:hover .top {
+    color:rgb(92, 125, 131) !important;
+    font-weight: bold;
+    transition: 100ms;
+}
+.data-block:focus {
+    color: rgb(92, 125, 131) !important;
+    font-weight:bold;;
+
+}
+.email {
+    background: black;
+    font-weight:bold;
+    color:white;
+    border-radius: 6px;
+    padding: 5px 15px 5px 15px;
+    width:300px;
+}
